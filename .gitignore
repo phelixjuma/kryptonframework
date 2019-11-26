@@ -1,0 +1,20 @@
+/gmoney/*
+/vendor/*
+/.idea/*
+/Web/fileuploads/*
+/Web/logs/*
+/tests/*
+.env
+.htaccess
+/.idea/workspace.xml
+codeception.yml
+.DS_Store
+/Logs/*
+phinx.yml
+
+
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

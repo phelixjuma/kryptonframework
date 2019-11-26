@@ -1,0 +1,45 @@
+{
+    "name": "kuza/kryptonframework",
+    "description": "Kuza Krypton Framework",
+    "keywords": ["kuza", "package"],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Phelix Juma",
+            "email": "jumaphelix@kuzalab.com"
+        },
+        {
+            "name": "Allan Otieno",
+            "email": "allan@kuzalab.com"
+        }
+    ],
+    "type": "project",
+    "minimum-stability": "beta",
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "require": {
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-curl": "*",
+        "ext-pdo": "*",
+		"php": ">=7.1",
+        "vlucas/phpdotenv": "^2.5",
+        "php-di/php-di": "^6.0",
+        "doctrine/annotations": "^1.6",
+        "ocramius/proxy-manager": "^2.1",
+        "netresearch/jsonmapper": "^1.4",
+        "phroute/phroute": "^2.1",
+        "kuza/krypton": "^1.0",
+        "robmorgan/phinx": "^0.11.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "6.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kuza\\Krypton\\Framework\\": "src/"
+        }
+    }
+}
