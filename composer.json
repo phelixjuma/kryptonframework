@@ -32,7 +32,8 @@
         "netresearch/jsonmapper": "^1.4",
         "phroute/phroute": "^2.1",
         "kuza/krypton": "^1.0",
-        "robmorgan/phinx": "^0.11.1"
+        "robmorgan/phinx": "^0.11.1",
+        "fzaninotto/faker": "^1.9"
     },
     "require-dev": {
         "phpunit/phpunit": "6.*"
