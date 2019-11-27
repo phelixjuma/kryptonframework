@@ -28,11 +28,12 @@ class User extends DBConnection {
     public $first_name;
     public $surname;
     public $other_names;
-    public $national_id_number;
     public $gender;
-    public $avatar;
-    public $avatar_url = Config::DEFAULT_AVATAR;
+    public $avatar_id;
     public $date_of_birth;
+    public $status;
+    public $role_id;
+    private $password;
 
     public $created_at;
     public $created_by;
@@ -42,9 +43,7 @@ class User extends DBConnection {
     public $archived_by;
     public $archived_at;
 
-    public $status;
-
-    private $password;
+    public $avatar_url = Config::DEFAULT_AVATAR;
 
     protected $role;
     protected $documentModel;
