@@ -363,10 +363,11 @@ class User extends DBConnection {
     }
 
     /**
-     * Create a user
+     * Create user.
      * @param $user
-     * @throws CustomException
+     * @return array
      * @throws ConfigurationException
+     * @throws CustomException
      */
     public function createUser($user) {
 
@@ -380,6 +381,8 @@ class User extends DBConnection {
         }
 
         $this->setUserById($this->lastAffectedId());
+
+        return $this->getUserDetails();
     }
 
     /**

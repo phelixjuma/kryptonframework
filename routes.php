@@ -35,8 +35,19 @@ $this->router->group(['prefix' => 'admin', "before" => "auth"], function() {
 $this->router->group(['prefix' => 'api'], function() {
 
     /**
-     * Handle all user APIs
+     * APIs that require authentication
      */
-    $this->router->controller("users", "Kuza\Krypton\Framework\Controllers\UsersApi");
+    $this->router->group(['before' => 'auth'], function(){
+
+        /**
+         * Handle all user APIs
+         */
+        $this->router->controller("users", "Kuza\Krypton\Framework\Controllers\UsersApi");
+    });
+
+    /**
+     * Login API: /api/auth/login
+     */
+    $this->router->controller("auth", "Kuza\Krypton\Framework\Controllers\AuthApi");
 
 });

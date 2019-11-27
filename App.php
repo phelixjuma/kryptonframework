@@ -12,6 +12,7 @@ namespace Kuza\Krypton\Framework;
 
 use DI\Container;
 use Dotenv\Dotenv;
+use Kuza\Krypton\Framework\Framework\RouterResolver;
 use Kuza\Krypton\Framework\Models\User;
 use Phroute\Phroute\Exception\HttpRouteNotFoundException;
 use Phroute\Phroute\RouteCollector;
@@ -77,6 +78,12 @@ final class App {
      * @var array $viewData
      */
     public $viewData = [];
+
+    /**
+     * The errors to be displayed should there be any.
+     * @var array
+     */
+    public $viewErrors = [];
 
     /**
      * Initialize the system
@@ -351,11 +358,15 @@ final class App {
     private function dispatchRequests() {
 
         try {
-            //instantiate the dispatcher
 
-            $dispatcher =  new Dispatcher($this->router->getData());
+            // instantiate the resolver.
+            $resolver = new RouterResolver($this->DIContainer);
+
+            //instantiate the dispatcher
+            $dispatcher =  new Dispatcher($this->router->getData(),$resolver);
 
             //dispatch the data. We don't capture the response because our controllers set the requests api data directly
+
             $dispatcher->dispatch($this->requests->method, $this->requests->uri);
 
         } catch (HttpMethodNotAllowedException $e) {

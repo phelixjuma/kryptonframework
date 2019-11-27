@@ -23,6 +23,9 @@ class Controller {
 
     protected $requests;
 
+    public $validation_errors = false;
+    public $errors = [];
+
     /**
      * UserController constructor.
      */
@@ -39,13 +42,16 @@ class Controller {
      * @param bool $success
      * @param string $message
      * @param array $data
+     * @param array $errors
      * @param int $totalRecords
      */
-    public function apiResponse(int $code = Requests::RESPONSE_OK, bool $success = true, string $message = "", $data = [], int $totalRecords = 0) {
+    public function apiResponse(int $code = Requests::RESPONSE_OK, bool $success = true, string $message = "", $data = [], $errors = [], int $totalRecords = 0) {
 
         $this->requests->apiData = [
             "success"   => $success,
+            "message"   => $message,
             "data"      => $data,
+            "errors"    => $errors,
             "total_records"     =>  $totalRecords,
             "code"      =>  $code
         ];
@@ -58,13 +64,16 @@ class Controller {
      * Render a view
      * @param $view
      * @param array $data
+     * @param array $errors
      */
-    public function view($view, $data = []) {
+    public function view($view, $data = [], $errors = []) {
 
         // we set the view details.
         $this->app->view = $this->getViewTemplate($view);
 
         $this->app->viewData = $data;
+
+        $this->app->viewErrors = $errors;
 
         // we require the layout file
         require $this->app->getLayout();
@@ -80,12 +89,23 @@ class Controller {
     }
 
     /**
-     * Checks if a page has a template
-     * @param $page
-     * @return bool
+     * Validate data by field requirement.
+     * @param $body
+     * @param $fields
      */
-    private function hasViewTemplate($page) {
-        return file_exists($this->getViewTemplate($page));
+    protected function validateInputRequired($body, $fields) {
+
+        foreach ($fields as $field) {
+
+            if (!array_key_exists($field, $body)) {
+                $this->errors[] = "$field is required";
+            }
+        }
+
+        if (sizeof($this->errors) > 0) {
+            $this->validation_errors = true;
+        }
+
     }
 
 }
