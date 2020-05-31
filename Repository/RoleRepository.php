@@ -1,45 +1,31 @@
 <?php
 /**
- * This is the Roles model
+ * This is the Roles repository
  * @author Phelix Juma <jumaphelix@kuzalab.com>
  * @author Allan Otieno <allan@kuzalab.com>
  * @copyright (c) 2019, Kuza Lab
  * @package Kuza Krypton PHP Framework
  */
 
-namespace Kuza\Krypton\Framework\Models;
+namespace Kuza\Krypton\Framework\Repository;
 
+use Kuza\Krypton\Classes\Data;
 use Kuza\Krypton\Exceptions\CustomException;
 use Kuza\Krypton\Classes\Requests;
-use Kuza\Krypton\Framework\Framework\DBConnection;
+use Kuza\Krypton\Framework\Models\RoleModel;
 
-final class Role extends DBConnection {
+class RoleRepository extends RoleModel {
 
-    public $id;
-    public $name;
-    public $type;
-    public $permissions = [];
-    public $is_role = false;
-    public $is_back_office_role = false;
-
-    public $created_at;
-    public $created_by;
-    public $updated_at;
-    public $updated_by;
-    public $is_archived = false;
-    public $archived_by;
-    public $archived_at;
-
-    protected $rolePermissionModel;
+    protected $rolePermissionRepository;
 
     /**
-     * Role constructor.
-     * @param RolePermission $rolePermissionModel
+     * RoleRepository constructor.
+     * @param RolePermissionRepository $rolePermissionRepository
      */
-    public function __construct(RolePermission $rolePermissionModel) {
-        parent::__construct("roles");
+    public function __construct(RolePermissionRepository $rolePermissionRepository) {
+        parent::__construct();
 
-        $this->rolePermissionModel = $rolePermissionModel;
+        $this->rolePermissionRepository = $rolePermissionRepository;
     }
 
     /**
@@ -48,29 +34,13 @@ final class Role extends DBConnection {
      */
     private function setRoleDetails($role) {
         if(sizeof($role) > 0) {
-            $this->is_role = true;
-            $this->id = $role['id'];
-            $this->name = $role['name'];
-            $this->type = $role['type'];
-            $this->created_at = isset($role['created_at']) ? $role['created_at'] : "";
-            $this->created_by = isset($role['created_by']) ? $role['created_by'] : "";
-            $this->updated_at = isset($role['updated_at']) ? $role['updated_at'] : "";
-            $this->updated_by = isset($role['updated_by']) ? $role['updated_by'] : "";
-            $this->is_archived = isset($role['is_archived']) ? $role['is_archived'] : "";
-            $this->archived_by = isset($role['archived_by']) ? $role['archived_by'] : "";
-            $this->archived_at = isset($role['archived_at']) ? $role['archived_at'] : "";
+
+            Data::mapArrayToObject($this, $role);
 
             $this->is_back_office_role = $this->type == 'admin' ? true : false;
 
-            $this->permissions = $this->rolePermissionModel->getRolePermissions($this->id);//set the permissions of the role
+            $this->permissions = $this->rolePermissionRepository->getRolePermissions($this->id);//set the permissions of the role
         }
-    }
-
-    /**
-     * Get the details of a role
-     */
-    public function getRoleDetails() {
-        return $this->toArray();
     }
 
     /**
@@ -79,7 +49,7 @@ final class Role extends DBConnection {
      */
     public function setRoleById($id) {
 
-        $role = parent::selectOne($id);
+        $role = $this->selectOne($id);
 
         if(sizeof($role) > 0) {
             $this->setRoleDetails($role);
@@ -139,7 +109,7 @@ final class Role extends DBConnection {
 
             foreach($resultSet as $role){
                 $this->setRoleDetails($role);
-                $roles[] = $this->getRoleDetails();
+                $roles[] = $this->getDetails();
             }
         }
         return $roles;

@@ -8,21 +8,22 @@
  * @package Kuza Krypton PHP Framework
  */
 
-namespace Kuza\Krypton\Framework\Models;
+namespace Kuza\Krypton\Framework\Repository;
 
 use Kuza\Krypton\Exceptions\ConfigurationException;
 use Kuza\Krypton\Exceptions\CustomException;
 
+
 class SessionAuthentication {
 
-    protected $userModel;
+    protected $userRepository;
 
     /**
-     * Authentication constructor.
-     * @param User $userModel
+     * SessionAuthentication constructor.
+     * @param UserRepository $userRepository
      */
-    public function __construct(User $userModel) {
-        $this->userModel = $userModel;
+    public function __construct(UserRepository $userRepository) {
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -39,22 +40,22 @@ class SessionAuthentication {
         $data = ["success" => false, "message" => "", "data" => null];
 
         // 1.  check if the user exists
-        $this->userModel->setUserByEmailAddress($email);
+        $this->userRepository->setUserByEmailAddress($email);
 
-        if (!$this->userModel->is_user) {
+        if (!$this->userRepository->is_user) {
             $data['message'] = "The email address is not registered with us";
         }
         // 2. check if the password is correct
-        elseif(!$this->userModel->validatePassword($password)) {
+        elseif(!$this->userRepository->validatePassword($password)) {
             $data['message'] = "The password entered for this email address does not match our records";
         }
         // 3. everything ok. We log in the user
         else {
-            $_SESSION['current_user'] = $this->userModel;
+            $_SESSION['current_user'] = $this->userRepository->getUserDetails();
 
             $data['success'] = true;
             $data['message'] = "You have been successfully logged in.";
-            $data['data'] = $this->userModel->getUserDetails();
+            $data['data'] = $this->userRepository->getUserDetails();
         }
 
         return $data;
@@ -66,6 +67,15 @@ class SessionAuthentication {
     public function logout() {
         session_destroy();
         $_SESSION = null;
+    }
+
+    /**
+     * Get authenticated user
+     * @return UserRepository
+     * @throws CustomException
+     */
+    public function authenticate() {
+        return $this->userRepository->setUserById(2);
     }
 
 }

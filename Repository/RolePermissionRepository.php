@@ -7,14 +7,15 @@
  * @package Kuza Krypton PHP Framework
  */
 
-namespace Kuza\Krypton\Framework\Models;
+namespace Kuza\Krypton\Framework\Repository;
 
 use Kuza\Krypton\Exceptions\CustomException;
 use Kuza\Krypton\Classes\Data;
 use Kuza\Krypton\Classes\Requests;
 use Kuza\Krypton\Framework\Framework\DBConnection;
+use Kuza\Krypton\Framework\Models\RolePermissionModel;
 
-final class RolePermission extends DBConnection {
+final class RolePermissionRepository extends RolePermissionModel {
 
     public $id;
     public $role_id;
@@ -22,10 +23,10 @@ final class RolePermission extends DBConnection {
 
 
     /**
-     * RolePermission constructor.
+     * RolePermissionRepository constructor.
      */
     public function __construct() {
-        parent::__construct("roles_permissions");
+        parent::__construct();
     }
 
     /**

@@ -11,25 +11,27 @@ namespace Kuza\Krypton\Framework\Controllers;
 
 use Kuza\Krypton\Classes\Requests;
 use Kuza\Krypton\Classes\Utils;
-use Kuza\Krypton\Framework\Framework\Controller;
-use Kuza\Krypton\Framework\Models\SessionAuthentication;
-use Kuza\Krypton\Framework\Models\User;
+use Kuza\Krypton\Framework\Controller;
+use Kuza\Krypton\Framework\Models\UserModel;
+use Kuza\Krypton\Framework\Repository\SessionAuthentication;
+use Kuza\Krypton\Framework\Repository\UserRepository;
 
 class AuthApi extends Controller {
 
     protected $auth;
-    protected $user;
+    protected $userRepository;
 
     /**
      * AuthApi constructor.
      * @param SessionAuthentication $auth
-     * @param User $user
+     * @param UserRepository $userRepository
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
      */
-    public function __construct(SessionAuthentication $auth, User $user) {
+    public function __construct(SessionAuthentication $auth, UserRepository $userRepository) {
         parent::__construct();
 
         $this->auth = $auth;
-        $this->user = $user;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -40,14 +42,14 @@ class AuthApi extends Controller {
      * @throws \Kuza\Krypton\Exceptions\ConfigurationException
      * @throws \Kuza\Krypton\Exceptions\CustomException
      */
-    public function postLogin() {
+    public function login() {
 
         $body = $this->requests->body;
 
-        $this->validateInputRequired($body, ['email_address', 'password']);
+        $this->validate($body, UserModel::$login_validation_rules);
 
         if ($this->validation_errors) {
-            $this->apiResponse(Requests::RESPONSE_OK, false,"Please enter all required fields", null,0);
+            $this->apiResponse(Requests::RESPONSE_BAD_REQUEST, false,"Please enter all required fields", null,$this->errors);
         }
         // we log in the user
         else {
@@ -66,14 +68,14 @@ class AuthApi extends Controller {
      * @throws \Kuza\Krypton\Exceptions\ConfigurationException
      * @throws \Kuza\Krypton\Exceptions\CustomException
      */
-    public function postSignup() {
+    public function signup() {
 
         $body = $this->requests->body;
 
-        $this->validateInputRequired($body, ['email_address', 'password', 'first_name', 'surname', 'gender']);
+        $this->validate($body, UserModel::$validation_rules);
 
         if ($this->validation_errors) {
-            $this->apiResponse(Requests::RESPONSE_BAD_REQUEST, false,"Please enter all required fields", null,0);
+            $this->apiResponse(Requests::RESPONSE_BAD_REQUEST, false,"Please enter all required fields", null,$this->errors);
         }
 
         // we sign up the user
@@ -82,7 +84,7 @@ class AuthApi extends Controller {
             $body['password'] = Utils::hashPassword($body['password']);
             $body['role_id'] = 2; // we set the 'user' type role.
 
-            $user = $this->user->createUser($body);
+            $user = $this->userRepository->createUser($body);
 
             $this->apiResponse(Requests::RESPONSE_OK, true, "Your account has been successfully created", $user);
         }

@@ -9,7 +9,7 @@
 
 namespace Kuza\Krypton\Framework\Models;
 
-use Kuza\Krypton\Framework\Framework\DBConnection;
+use Kuza\Krypton\Framework\DBConnection;
 
 final class Permission extends DBConnection {
 

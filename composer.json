@@ -16,7 +16,17 @@
     "type": "project",
     "minimum-stability": "beta",
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/phpunit",
+        "schedule:run": "vendor/bin/crunz schedule:run",
+        "schedule:list": "vendor/bin/crunz schedule:list",
+        "migrations:create": "vendor/bin/phinx create",
+        "migrations": "vendor/bin/phinx",
+        "migrations:migrate": "vendor/bin/phinx migrate",
+        "migrations:rollback": "vendor/bin/phinx rollback",
+        "migrations:status": "vendor/bin/phinx status",
+        "migrations:test": "vendor/bin/phinx test",
+        "seed:create": "vendor/bin/phinx seed:create",
+        "seed:run": "vendor/bin/phinx seed:run"
     },
     "require": {
         "ext-json": "*",
@@ -25,15 +35,11 @@
         "ext-curl": "*",
         "ext-pdo": "*",
 		"php": ">=7.1",
-        "vlucas/phpdotenv": "^2.5",
-        "php-di/php-di": "^6.0",
-        "doctrine/annotations": "^1.6",
-        "ocramius/proxy-manager": "^2.1",
-        "netresearch/jsonmapper": "^1.4",
-        "phroute/phroute": "^2.1",
-        "kuza/krypton": "^1.0",
         "robmorgan/phinx": "^0.11.1",
-        "fzaninotto/faker": "^1.9"
+        "fzaninotto/faker": "^1.9",
+        "monolog/monolog": "1.25.3",
+        "lavary/crunz": "^2.1",
+        "kuza/krypton": "^2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "6.*"

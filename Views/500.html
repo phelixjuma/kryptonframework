@@ -1,0 +1,14 @@
+<?php
+namespace Ecolift\Pages;
+?>
+<h1>500! INTERNAL SERVER ERROR</h1>
+
+<p class="p"><?php echo $message; ?></p>
+<p class="p">
+    <i>More information (<b>should be hidden on production server</b>):</i><br />
+    <?php if ($trace):  ?>
+        <?php foreach($trace as $t): ?>
+            <p><?php echo "Error from {$t['file']} on line {$t['line']}. {$t['function']} function of {$t['class']} class"; ?></p>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</p>

@@ -1,103 +1,55 @@
 <?php
 
 /**
- * This is the Users Model Class
+ * This is the Users Repository Class
  * @author Phelix Juma <jumaphelix@kuzalab.com>
  * @author Allan Otieno <allan@kuzalab.com>
  * @copyright (c) 2019, Kuza Lab
  * @package Kuza Krypton PHP Framework
  */
 
-namespace Kuza\Krypton\Framework\Models;
+namespace Kuza\Krypton\Framework\Repository;
 
+use Kuza\Krypton\Classes\Data;
 use Kuza\Krypton\Exceptions\ConfigurationException;
 use Kuza\Krypton\Exceptions\CustomException;
 use Kuza\Krypton\Classes\Requests;
 use Kuza\Krypton\Classes\Utils;
 use Kuza\Krypton\Config\Config;
 use Kuza\Krypton\Database\Predicates\Match;
-use Kuza\Krypton\Framework\Framework\DBConnection;
+use Kuza\Krypton\Framework\Models\UserModel;
 
-class User extends DBConnection {
+class UserRepository extends UserModel {
 
-    public $is_user = false;
 
-    public $id;
-    public $email_address;
-    public $phone_number;
-    public $first_name;
-    public $surname;
-    public $other_names;
-    public $gender;
-    public $avatar_id;
-    public $date_of_birth;
-    public $status;
-    public $role_id;
-    private $password;
-
-    public $created_at;
-    public $created_by;
-    public $updated_at;
-    public $updated_by;
-    public $is_archived = false;
-    public $archived_by;
-    public $archived_at;
-
-    public $avatar_url = Config::DEFAULT_AVATAR;
-
-    protected $role;
-    protected $documentModel;
+    protected $roleRepository;
 
     /**
      * User constructor.
-     * @param Role $roleModel
-     * @param Document $documentModel
+     * @param RoleRepository $roleRepository
      */
-    public function __construct(Role $roleModel,Document $documentModel) {
-        parent::__construct("users");
+    public function __construct(RoleRepository $roleRepository) {
 
-        $this->role = $roleModel;
-        $this->documentModel = $documentModel;
+        parent::__construct();
+
+        $this->roleRepository = $roleRepository;
     }
 
     /**
      * Set the details of the user. Uses user data from the database
      * @param $user
-     * @throws ConfigurationException
      */
     private function setUserDetails($user) {
 
         if(sizeof($user) > 0) {
-            $this->is_user = true;
-            $this->id = isset($user['id']) ? $user['id'] : "";
-            $this->password = isset($user['password']) ? $user['password'] : "";
-            $this->email_address = isset($user['email_address']) ? $user['email_address'] : "";
-            $this->phone_number = isset($user['phone_number']) ? $user['phone_number'] : "";
-            $this->given_name = isset($user['given_name']) ? $user['given_name'] : "";
-            $this->surname = isset($user['surname']) ? $user['surname'] : "";
-            $this->other_names = isset($user['other_names']) ? $user['other_names'] : "";
-            $this->avatar = !empty($user['avatar']) ? $user['avatar'] : "0";
-            $this->avatar_url = $this->getAvatar($this->avatar);
-            $this->national_id_number = isset($user['national_id_number']) ? $user['national_id_number'] : "";
-            $this->gender = isset($user['gender']) ? $user['gender'] : "";
-            $this->date_of_birth = isset($user['date_of_birth']) ? $user['date_of_birth'] : "";
-
-            $this->created_at = isset($user['created_at']) ? $user['created_at'] : "";
-            $this->created_by = isset($user['created_by']) ? $user['created_by'] : "";
-            $this->updated_at = isset($user['updated_at']) ? $user['updated_at'] : "";
-            $this->updated_by = isset($user['updated_by']) ? $user['updated_by'] : "";
-            $this->is_archived = isset($user['is_archived']) ? $user['is_archived'] : false;
-            $this->archived_by = isset($user['archived_by']) ? $user['archived_by'] : "";
-            $this->archived_at = isset($user['archived_at']) ? $user['archived_at'] : "";
-
-            $this->status = isset($user['status']) ? $user['status'] : "";
+            Data::mapArrayToObject($this, $user);
         }
     }
 
     /**
      * Set user details using the provided user's id
      * @param $id
-     * @throws ConfigurationException
+     * @return $this
      * @throws CustomException
      */
     public function setUserById($id) {
@@ -116,6 +68,8 @@ class User extends DBConnection {
         if(sizeof($user) > 0) {
             $this->setUserDetails($user[0]);
         }
+
+        return $this;
     }
 
     /**
@@ -168,22 +122,6 @@ class User extends DBConnection {
     }
 
     /**
-     * Get the user's avatar
-     * @param $documentId
-     * @return string
-     * @throws ConfigurationException
-     */
-    public function getAvatar($documentId) {
-        if ($this->documentModel != null && !empty($documentId) && $documentId != 0) {
-
-            $this->documentModel->setDocumentById($documentId);
-
-            return $this->documentModel->getLink();
-        }
-        return rtrim(Config::getSiteURL(),"/") . Config::DEFAULT_AVATAR;
-    }
-
-    /**
      * Get user details
      * @return array
      */
@@ -230,7 +168,7 @@ class User extends DBConnection {
      * @throws CustomException
      * @throws ConfigurationException
      */
-    public function getUsers($criteria, $offset,$limit) {
+    public function getUsers($criteria=[], $offset=0,$limit= Config::PAGE_SIZE) {
         $queryLimit = "$offset,$limit";
         $usersList = [];
         $this->prepareCriteria($criteria);

@@ -1,24 +1,31 @@
 <?php
 
+
+
+use Kuza\Krypton\App;
+use Kuza\Krypton\Framework\JsonResponse;
 use Kuza\Krypton\Exceptions\UnauthenticatedException;
 use Kuza\Krypton\Exceptions\UnauthorizedException;
-use Kuza\Krypton\Framework\JsonResponse;
+
+session_start();
+session_regenerate_id();
 
 //require the composer vendor libraries autoloader
-require "bootstrap.php";
+require "vendor/autoload.php";
+
+$app = new App();
 
 try {
 
-    // set cors
-
-    $cors = [
-        "Access-Control-Allow-Origin: *",
-        "Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers: X-Requested-With , Content-Type , Authorization, Business, Role, Region, Country",
-        "Access-Control-Max-Age: 5"
-    ];
-
-    $app->run($cors);
+    $app
+        ->setControllersDirectory("Controllers")
+        ->setViewsDirectory("Views")
+        ->setLayoutsDirectory("Layouts")
+        ->setLogsDirectory("Logs")
+        ->setRoutesFile("routes")
+        ->setExceptionHandler(["\Kuza\Krypton\Framework\Helpers\ErrorHandler", "exceptionHandler"])
+        ->setErrorHandler(["\Kuza\Krypton\Framework\Helpers\ErrorHandler", "errorHandler"])
+        ->init();
 
 } catch (Exception $ex) {
 

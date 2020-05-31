@@ -9,34 +9,39 @@
 
 namespace Kuza\Krypton\Framework\Controllers;
 
-use Kuza\Krypton\Framework\Framework\Controller;
-use Kuza\Krypton\Framework\Models\CurrentUser;
-use Kuza\Krypton\Framework\Models\User;
+use Kuza\Krypton\Framework\Controller;
+use Kuza\Krypton\Framework\Repository\UserRepository;
+
 
 class UsersView extends Controller {
 
-    protected $user;
-    protected $currentUser;
+    protected $userRepository;
 
     /**
      * UsersView constructor.
-     * @param User $user
-     * @param CurrentUser $currentUser
+     * @param UserRepository $userRepository
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
      */
-    public function __construct(User $user, CurrentUser $currentUser) {
+    public function __construct(UserRepository $userRepository) {
         parent::__construct();
 
-        $this->user = $user;
-        $this->currentUser = $currentUser;
+        $this->userRepository = $userRepository;
     }
 
     /**
+     * View the list of users.
+     *
      * @Route("/admin/users")
+     *
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     * @throws \Kuza\Krypton\Exceptions\CustomException
      */
-    public function getIndex() {
+    public function getUsers() {
 
-        $usersList = [["name" => "Phelix"]];
-        $count = count($usersList);
+        # print_r($this->currentUser->getUserDetails());
+
+        $usersList = $this->userRepository->getUsers();
+        $count = $this->userRepository->countUsers();
 
         $this->view("users", ["usersList" => $usersList, "count" => $count]);
     }

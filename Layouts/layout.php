@@ -1,3 +1,3 @@
 <?php
 
-require "admin/index.phtml";
+require "index.html";

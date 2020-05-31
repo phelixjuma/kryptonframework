@@ -10,61 +10,59 @@
 namespace Kuza\Krypton\Framework\Controllers;
 
 use Kuza\Krypton\Classes\Requests;
-use Kuza\Krypton\Framework\Framework\Controller;
+use Kuza\Krypton\Framework\Controller;
+use Kuza\Krypton\Framework\Models\UserModel;
+use Kuza\Krypton\Framework\Repository\UserRepository;
 
 class UsersApi extends Controller {
 
+    protected $userRepository;
+
     /**
-     * UserController constructor.
+     * UsersApi constructor.
+     * @param UserModel $user
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
      */
-    public function __construct() {
+    public function __construct(UserRepository $userRepository) {
         parent::__construct();
+
+        $this->userRepository = $userRepository;
     }
 
     /**
-     * @Route("/api/users")
+     * Get all users
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     * @throws \Kuza\Krypton\Exceptions\CustomException
      */
-    public function getIndex() {
+    public function allUsers() {
 
-        $data = [["name" => "Phelix"]];
-        $count = count($data);
-        $message = "endpoint is GET /api/users";
+        $usersList = $this->userRepository->getUsers();
+        $count = $this->userRepository->countUsers();
 
-        $this->apiResponse(Requests::RESPONSE_OK, true, $message, $data, $count);
+        $this->apiResponse(Requests::RESPONSE_OK, true, "", $usersList,[], $count);
+    }
+
+    /**
+     * @param $userId
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     * @throws \Kuza\Krypton\Exceptions\CustomException
+     */
+    public function oneUser($userId) {
+
+        $this->userRepository->setUserById($userId);
+
+        $this->apiResponse(Requests::RESPONSE_OK, true, "", $this->userRepository->getUserDetails());
     }
 
     /**
      * Handle creation of a user
-     * @return string
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     * @throws \Kuza\Krypton\Exceptions\CustomException
      */
-    public function postIndex() {
+    public function userRoles($userId) {
 
-        print "endpoint is POST /api/users";
+        $this->userRepository->setUserById($userId);
 
-        return 'This will respond to /controller/test with only a POST method';
-    }
-
-    /**
-     * Handle editing of a user
-     * @param $id
-     * @return string
-     */
-    public function patchIndex($id) {
-
-        print "endpoint is PATCH /api/users/$id";
-
-        return 'This will respond to /controller/test with only a PUT method';
-    }
-
-    /**
-     * Handle deletion of a user
-     * @param $id
-     * @return string
-     */
-    public function deleteIndex($id) {
-
-        print "endpoint is DELETE /api/users/$id";
-
-        return 'This will respond to /controller/test with only a DELETE method';
+        $this->apiResponse(Requests::RESPONSE_OK, true, "", $this->userRepository->getUserDetails());
     }
 }
