@@ -1,7 +1,7 @@
 KRYPTON PHP FRAMEWORK
 =========================
 
-A flexible PHP framework for API-based applications
+A flexible minimalistic PHP framework for API-based applications
 
 
 Requirements
@@ -71,8 +71,15 @@ Usage
 =====
 
 1. The models are written in the Models directory
-2. The Controllers are written in the Controllers directory
-3. Add private public key pair for JWT in the Keys directory
+2. The repositories are written in the repository directory
+3. The Controllers are written in the Controllers directory
+4. The tests are in the tests directory
+5. Automated asynchronous tasks in the tasks directory (if any)
+6. routes.php defines the routes
+7. Route middlewares are in the middlreware directory
+8. Page views (html) are put in the views directory
+9. Page layouts are defined in the layouts directory
+10. Static files like js/css/images/fonts are all in the static directory
 
 Sample Model: Users.php
 =========================
@@ -131,62 +138,114 @@ Sample Model: Users.php
 
 ```
 
-Sample Controller: users.php
+Sample API Controller
 ============================
 ```php
 <?php
 
 namespace Kuza\Krypton\Framework\Controllers;
 
-use Kuza\Krypton\Framework\Models\Users;
+use Kuza\Krypton\Classes\Requests;
+use Kuza\Krypton\Framework\Controller;
+use Kuza\Krypton\Framework\Models\UserModel;
+use Kuza\Krypton\Framework\Repository\UserRepository;
 
-/**
- * @var \Kuza\Krypton\Classes\Requests $requests
- */
-$requests = $this->requests;
+class UsersApi extends Controller {
 
-/**
- * @var \Kuza\Krypton\Framework\Models\Users $userModel 
- */
-$userModel = $this->DIContainer->get("\Kuza\Krypton\Framework\Models\Users");
+    protected $userRepository;
 
-$this->router
+    /**
+     * UsersApi constructor.
+     * @param UserModel $user
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     */
+    public function __construct(UserRepository $userRepository) {
+        parent::__construct();
 
-->get("users", function () use($requests, $userModel) {
-
-    $usersList = $userModel->getUsers();
-
-    if ($usersList) {
-        
-        $requests->apiData = [
-                "success"   => true,
-                "message"   => "Users successfully found",
-                "data"      => $usersList 
-            ];
-    } else {
-        $requests->apiData = [
-                "success"   => false,
-                "message"   => "No user found"
-            ];
+        $this->userRepository = $userRepository;
     }
 
-})
+    /**
+     * Get all users
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     * @throws \Kuza\Krypton\Exceptions\CustomException
+     */
+    public function allUsers() {
 
-->get("users/{id}", function ($id) use($requests, $userModel) {
-    
-})
+        $usersList = $this->userRepository->getUsers();
+        $count = $this->userRepository->countUsers();
 
-->post("users", function() use($requests, $userModel) {
-    
-})
+        $this->apiResponse(Requests::RESPONSE_OK, true, "", $usersList,[], $count);
+    }
 
-->patch("users", function() use($requests, $userModel) {
-    
-})
+    /**
+     * @param $userId
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     * @throws \Kuza\Krypton\Exceptions\CustomException
+     */
+    public function oneUser($userId) {
 
-->delete("users/{id}", function($id) use($requests, $userModel) {
-    
-});
+        $this->userRepository->setUserById($userId);
+
+        $this->apiResponse(Requests::RESPONSE_OK, true, "", $this->userRepository->getUserDetails());
+    }
+
+    /**
+     * Handle creation of a user
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     * @throws \Kuza\Krypton\Exceptions\CustomException
+     */
+    public function userRoles($userId) {
+
+        $this->userRepository->setUserById($userId);
+
+        $this->apiResponse(Requests::RESPONSE_OK, true, "", $this->userRepository->getUserDetails());
+    }
+}
+```
+
+Sample View Controller
+============================
+```php
+<?php
+
+namespace Kuza\Krypton\Framework\Controllers;
+
+use Kuza\Krypton\Framework\Controller;
+use Kuza\Krypton\Framework\Repository\UserRepository;
+
+
+class UsersView extends Controller {
+
+    protected $userRepository;
+
+    /**
+     * UsersView constructor.
+     * @param UserRepository $userRepository
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     */
+    public function __construct(UserRepository $userRepository) {
+        parent::__construct();
+
+        $this->userRepository = $userRepository;
+    }
+
+    /**
+     * View the list of users.
+     *
+     * @Route("/admin/users")
+     *
+     * @throws \Kuza\Krypton\Exceptions\ConfigurationException
+     * @throws \Kuza\Krypton\Exceptions\CustomException
+     */
+    public function getUsers() {
+
+        $usersList = $this->userRepository->getUsers();
+        $count = $this->userRepository->countUsers();
+
+        $this->view("users", ["usersList" => $usersList, "count" => $count]);
+    }
+}
 ```
 
 
